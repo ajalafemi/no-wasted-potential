@@ -8,40 +8,75 @@ export default function VideoSearch() {
   const [loading, setLoading] = useState(false);
 
   const search = async () => {
-    if(!query.trim()) return;
+    if (!query.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://pixabay.com/api/videos/?key=${PIXABAY_KEY}&q=${encodeURIComponent(query)}&per_page=12&safesearch=true`);
+      const res = await fetch(
+        `https://pixabay.com/api/videos/?key=${PIXABAY_KEY}&q=${encodeURIComponent(
+          query
+        )}&per_page=12&safesearch=true`
+      );
       const data = await res.json();
       setVideos(data.hits || []);
-    } catch(e){ console.log(e) }
+    } catch (e) {
+      console.log(e);
+    }
     setLoading(false);
   };
 
   return (
-    <div style={{ padding:20, maxWidth:750, margin:'auto' }}>
-      <h2 style={{textAlign:'center'}}>NWP Free Video Search</h2>
-      <p style={{textAlign:'center', color:'#666'}}>All videos are No-Copyright, free to download & post on NWP</p>
-      
-      <div style={{ display:'flex', gap:10, margin:'20px 0' }}>
-        <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=> e.key==='Enter' && search()} placeholder="Search: nature, abuja, football, dance..." style={{ flex:1, padding:14, borderRadius:10, border:'1px solid #ccc' }} />
-        <button onClick={search} style={{ padding:'14px 22px', borderRadius:10, background:'black', color:'white', fontWeight:'bold' }}>{loading?'...':'Search'}</button>
+    <section className="px-6 py-16 max-w-6xl mx-auto border-t border-white/10">
+      <h2 className="text-2xl font-black tracking-[0.2em] text-center">NWP STOCK</h2>
+      <p className="text-center text-[11px] opacity-50 tracking-widest mt-2 mb-8">
+        NO-COPYRIGHT VIDEOS — FREE TO DOWNLOAD & POST
+      </p>
+
+      <div className="flex gap-2 max-w-xl mx-auto">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && search()}
+          placeholder="Search: nature, lagos, gym, business..."
+          className="flex-1 px-5 py-4 rounded-full bg-zinc-900 border border-white/10 text-white text-sm outline-none placeholder:opacity-30"
+        />
+        <button
+          onClick={search}
+          className="px-8 py-4 rounded-full bg-white text-black font-black text-xs tracking-widest"
+        >
+          {loading? "..." : "SEARCH"}
+        </button>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:20 }}>
-        {videos.map((v:any)=>(
-          <div key={v.id} style={{ border:'1px solid #e5e5e5', borderRadius:14, overflow:'hidden', background:'white' }}>
-            <video width="100%" height="230" src={v.videos.medium.url} controls style={{background:'black'}} />
-            <div style={{ padding:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span style={{fontSize:13, color:'#444'}}>{v.tags.slice(0,40)}</span>
-              <a href={v.videos.medium.url} download={`${v.id}-nwp.mp4`} target="_blank" rel="noreferrer" style={{ background:'#0a7e07', color:'white', padding:'10px 16px', borderRadius:8, textDecoration:'none', fontWeight:'bold', fontSize:14 }}>
-                ⬇ Download
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+        {videos.map((v: any) => (
+          <div key={v.id} className="border border-white/10 rounded-2xl overflow-hidden bg-zinc-900/40">
+            <video
+              src={v.videos?.medium?.url || v.videos?.small?.url}
+              controls
+              playsInline
+              className="w-full h-[260px] object-cover bg-black"
+            />
+            <div className="p-4 flex justify-between items-center gap-3">
+              <span className="text-[11px] opacity-50 truncate">{v.tags}</span>
+              <a
+                href={v.videos?.medium?.url}
+                download
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 bg-white text-black px-4 py-2 rounded-full font-black text-[10px] tracking-widest"
+              >
+                DOWNLOAD
               </a>
             </div>
           </div>
         ))}
       </div>
-      {videos.length===0 && !loading && <p style={{textAlign:'center', marginTop:30, color:'#999'}}>Type something to search free videos</p>}
-    </div>
+
+      {videos.length === 0 &&!loading && (
+        <p className="text-center mt-12 text-[11px] opacity-30 tracking-widest">
+          TYPE SOMETHING TO SEARCH FREE VIDEOS
+        </p>
+      )}
+    </section>
   );
 }
