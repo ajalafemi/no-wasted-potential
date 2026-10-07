@@ -55,6 +55,7 @@ export default function App() {
 
       {/* VIDEO SEARCH SECTION - YOUR NEW FEATURE */}
       <VideoSearch />
+       <Pricing/>
 
       <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">
         NO WASTED POTENTIAL © 2026 - LAGOS
