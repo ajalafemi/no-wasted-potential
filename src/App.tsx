@@ -53,3 +53,8 @@ export default function App() {
     </div>
   );
 }
+
+import VideoSearch from "./components/VideoSearch";
+
+// inside your App() return, somewhere you want the search to show:
+<VideoSearch />
