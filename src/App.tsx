@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import VideoSearch from "./components/VideoSearch";
 
 const QUOTES = [
   "DISCIPLINE IS NOT PUNISHMENT. IT IS SELF RESPECT.",
@@ -20,6 +22,10 @@ export default function App() {
         <span className="font-black tracking-[0.3em] text-xs">NO WASTED POTENTIAL</span>
         <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="text-[10px] opacity-70">@nwp.motivation</a>
       </nav>
+
+<VideoSearch />
+
+<div className="..."> // your main content continues
 
       <section className="h-screen flex flex-col items-center justify-center text-center px-6 relative">
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-30" src="https://videos.pexels.com/video-files/5310859/5310859-hd_1920_1080_25fps.mp4" />
