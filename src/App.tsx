@@ -51,13 +51,18 @@ export default function App() {
             <p className="text-xs opacity-60 mb-4">{x.d}</p>
             <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="text-[10px] border-b border-white/20 pb-1">WATCH DROP →</a>
           </div>
-        ))}
-      </section>
+              ))}
+    </section>
 
-      <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">NO WASTED POTENTIAL © 2026 - LAGOS</footer>
+    <VideoSearch />
+
+    <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">
+    NO WASTED POTENTIAL © 2026 - LAGOS</footer>
     </div>
   );
 }
+
+     
 
 import VideoSearch from "./components/VideoSearch";
 
