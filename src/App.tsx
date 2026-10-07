@@ -9,11 +9,11 @@ const QUOTES = [
 ];
 
 export default function App() {
-  const [q,setQ] = useState(0);
-  useEffect(()=>{
-    const id=setInterval(()=>setQ(v=>(v+1)%QUOTES.length),2500);
-    return ()=>clearInterval(id);
-  },[]);
+  const [q, setQ] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setQ((v) => (v + 1) % QUOTES.length), 2500);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -21,10 +21,6 @@ export default function App() {
         <span className="font-black tracking-[0.3em] text-xs">NO WASTED POTENTIAL</span>
         <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="text-[10px] opacity-70">@nwp.motivation</a>
       </nav>
-
-<VideoSearch />
-
-<div className="..."> // your main content continues
 
       <section className="h-screen flex flex-col items-center justify-center text-center px-6 relative">
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-30" src="https://videos.pexels.com/video-files/5310859/5310859-hd_1920_1080_25fps.mp4" />
@@ -51,20 +47,14 @@ export default function App() {
             <p className="text-xs opacity-60 mb-4">{x.d}</p>
             <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="text-[10px] border-b border-white/20 pb-1">WATCH DROP →</a>
           </div>
-              ))}
-    </section>
+        ))}
+      </section>
 
-    <VideoSearch />
+      <VideoSearch />
 
-    <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">
-    NO WASTED POTENTIAL © 2026 - LAGOS</footer>
+      <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">
+        NO WASTED POTENTIAL © 2026 - LAGOS
+      </footer>
     </div>
   );
 }
-
-     
-
-import VideoSearch from "./components/VideoSearch";
-
-// inside your App() return, somewhere you want the search to show:
-<VideoSearch />
