@@ -1,3 +1,4 @@
+import Pricing from "./components/Pricing";
 import { useEffect, useState } from "react";
 import VideoSearch from "./components/VideoSearch";
 
