@@ -22,8 +22,7 @@
     "dotenv": "^17.2.3",
     "motion": "^12.23.24",
     "@ffmpeg/ffmpeg": "^0.12.10",
-    "@ffmpeg/util": "^0.12.1",
-    "@imgly/background-removal": "^1.4.5"
+    "@ffmpeg/util": "^0.12.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
