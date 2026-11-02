@@ -11,7 +11,7 @@ export default function Footer() {
     >
       <span className="footer-line" />
       <p>
-        Established by <strong>Femi Ajala</strong>, 2026
+        Established by <strong>Femi Ajala</strong>
       </p>
     </motion.footer>
   );
