@@ -1,6 +1,7 @@
 import Pricing from "./components/Pricing";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import VideoSearch from "./components/VideoSearch";
+import { motion, AnimatePresence, MotionConfig, type Variants } from "motion/react";
 
 const QUOTES = [
   "DISCIPLINE IS NOT PUNISHMENT. IT IS SELF RESPECT.",
@@ -8,6 +9,56 @@ const QUOTES = [
   "YOUR FUTURE SELF IS WATCHING.",
   "COMFORT IS A BEAUTIFUL PRISON.",
 ];
+
+const heroContainer: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.14, delayChildren: 0.2 } },
+};
+const heroLine: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+};
+
+function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Footer() {
+  return (
+    <motion.footer
+      className="px-4 pt-12 pb-10 text-center"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <motion.span
+        className="mx-auto mb-5 block h-px bg-[#00ff88]/60"
+        initial={{ width: 0 }}
+        whileInView={{ width: 48 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1, delay: 0.3 }}
+      />
+      <p className="text-[10px] tracking-[0.3em] uppercase opacity-60">
+        Established by{" "}
+        <span className="font-bold text-white transition-all duration-300 hover:[text-shadow:0_0_12px_rgba(0,255,136,0.9)]">
+          Femi Ajala
+        </span>
+        , 2026
+      </p>
+      <p className="mt-3 text-[10px] opacity-30 tracking-[0.3em]">NO WASTED POTENTIAL © 2026 - LAGOS</p>
+    </motion.footer>
+  );
+}
 
 export default function App() {
   const [q, setQ] = useState(0);
@@ -18,53 +69,138 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
   return (
-    <div className="min-h-screen bg-black text-white">
-      <nav className="fixed top-0 w-full flex justify-between items-center p-5 border-b border-white/10 bg-black/80 backdrop-blur z-50">
-        <span className="font-black tracking-[0.3em] text-[10px] md:text-xs cursor-pointer" onClick={()=>setView("home")}>NO WASTED POTENTIAL</span>
-        <div className="flex items-center gap-3">
-          <button onClick={()=>setView("home")} className={`text-[10px] font-bold tracking-widest ${view==="home"?"text-white":"opacity-50"}`}>HOME</button>
-          <button onClick={()=>setView("grind")} className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest ${view==="grind"?"bg-[#00ff88] text-black":"bg-white text-black"}`}>GRIND HUB 🔥</button>
-        </div>
-      </nav>
-      {view==="home"? (
-        <>
-          <section className="h-screen flex flex-col items-center justify-center text-center px-6 relative">
-            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-30" src="https://videos.pexels.com/video-files/5310859/5310859-hd_1920_1080_25fps.mp4" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black" />
-            <div className="relative z-10">
-              <p className="text-[10px] tracking-[0.5em] mb-4 opacity-60">DROP 001 // FEAR IS A LIAR</p>
-              <h1 className="text-6xl md:text-8xl font-black leading-[0.85]">YOU<br/>DID NOT<br/>COME<br/><span className="text-transparent" style={{WebkitTextStroke:"1px white"}}>THIS FAR</span><br/>TO QUIT</h1>
-              <p className="mt-6 text-sm tracking-widest font-bold h-6">{QUOTES[q]}</p>
-              <div className="mt-8 flex gap-3 justify-center">
-                <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="px-8 py-3 bg-white text-black font-black text-xs tracking-widest">WATCH ON TIKTOK</a>
-                <button onClick={()=>setView("grind")} className="px-8 py-3 bg-[#00ff88] text-black font-black text-xs tracking-widest">ENTER GRIND HUB</button>
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-screen bg-black text-white">
+        <motion.nav
+          initial={{ y: -80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="fixed top-0 w-full flex justify-between items-center p-5 border-b border-white/10 bg-black/80 backdrop-blur z-50"
+        >
+          <span className="font-black tracking-[0.3em] text-[10px] md:text-xs cursor-pointer" onClick={() => setView("home")}>NO WASTED POTENTIAL</span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setView("home")} className={`text-[10px] font-bold tracking-widest transition-opacity ${view === "home" ? "text-white" : "opacity-50 hover:opacity-100"}`}>HOME</button>
+            <motion.button
+              onClick={() => setView("grind")}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.95 }}
+              animate={
+                view === "home"
+                  ? { boxShadow: ["0 0 0px rgba(0,255,136,0)", "0 0 18px rgba(0,255,136,0.7)", "0 0 0px rgba(0,255,136,0)"] }
+                  : { boxShadow: "0 0 0px rgba(0,255,136,0)" }
+              }
+              transition={view === "home" ? { duration: 2.2, repeat: Infinity } : undefined}
+              className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest ${view === "grind" ? "bg-[#00ff88] text-black" : "bg-white text-black"}`}
+            >
+              GRIND HUB 🔥
+            </motion.button>
+          </div>
+        </motion.nav>
+
+        <AnimatePresence mode="wait">
+          {view === "home" ? (
+            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+              <section className="h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden">
+                <motion.video
+                  autoPlay loop muted playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-30"
+                  src="https://videos.pexels.com/video-files/5310859/5310859-hd_1920_1080_25fps.mp4"
+                  animate={{ scale: [1, 1.08] }}
+                  transition={{ duration: 18, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black" />
+                <motion.div className="relative z-10" variants={heroContainer} initial="hidden" animate="show">
+                  <motion.p variants={heroLine} className="text-[10px] tracking-[0.5em] mb-4 opacity-60">DROP 001 // FEAR IS A LIAR</motion.p>
+                  <h1 className="text-6xl md:text-8xl font-black leading-[0.85]">
+                    <motion.span variants={heroLine} className="block">YOU</motion.span>
+                    <motion.span variants={heroLine} className="block">DID NOT</motion.span>
+                    <motion.span variants={heroLine} className="block">COME</motion.span>
+                    <motion.span variants={heroLine} className="block text-transparent" style={{ WebkitTextStroke: "1px white" }}>THIS FAR</motion.span>
+                    <motion.span variants={heroLine} className="block">TO QUIT</motion.span>
+                  </h1>
+                  <motion.div variants={heroLine} className="mt-6 h-6">
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={q}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.35 }}
+                        className="text-sm tracking-widest font-bold"
+                      >
+                        {QUOTES[q]}
+                      </motion.p>
+                    </AnimatePresence>
+                  </motion.div>
+                  <motion.div variants={heroLine} className="mt-8 flex gap-3 justify-center">
+                    <motion.a whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} href="https://www.tiktok.com/@nwp.motivation" target="_blank" rel="noreferrer" className="px-8 py-3 bg-white text-black font-black text-xs tracking-widest">WATCH ON TIKTOK</motion.a>
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setView("grind")} className="px-8 py-3 bg-[#00ff88] text-black font-black text-xs tracking-widest">ENTER GRIND HUB</motion.button>
+                  </motion.div>
+                </motion.div>
+                <motion.div
+                  className="absolute bottom-6 z-10 text-[10px] tracking-[0.4em] opacity-40"
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 1.8, repeat: Infinity }}
+                >
+                  ↓
+                </motion.div>
+              </section>
+
+              <section id="drops" className="py-16 px-6 max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
+                {[{ t: "THE 4AM CONTRACT", d: "You signed it in silence." }, { t: "COMFORT = SLOW DEATH", d: "Your bed is warm. Your dreams are cold." }, { t: "NOBODY IS COMING", d: "The rescue was always YOU." }].map((x, i) => (
+                  <motion.div
+                    key={x.t}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.6, delay: i * 0.12, ease: "easeOut" }}
+                    whileHover={{ y: -6, borderColor: "rgba(0,255,136,0.6)" }}
+                    className="border border-white/10 p-6 bg-zinc-900/40"
+                  >
+                    <h3 className="font-black text-xl mb-2">{x.t}</h3>
+                    <p className="text-xs opacity-60 mb-4">{x.d}</p>
+                    <a href="https://www.tiktok.com/@nwp.motivation" target="_blank" rel="noreferrer" className="text-[10px] border-b border-white/20 pb-1 hover:border-[#00ff88] hover:text-[#00ff88] transition-colors">WATCH DROP →</a>
+                  </motion.div>
+                ))}
+              </section>
+
+              <Reveal><VideoSearch /></Reveal>
+              <Reveal><Pricing /></Reveal>
+              <Footer />
+            </motion.div>
+          ) : (
+            <motion.div key="grind" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="pt-20 px-3 pb-10 max-w-5xl mx-auto">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center mb-6">
+                <h2 className="text-4xl font-black">THE GRIND HUB</h2>
+                <p className="text-[11px] tracking-[0.3em] opacity-50 mt-1">ALL 7 ACTIVITIES ON NOWASTEDPOTENTIAL</p>
+              </motion.div>
+              <div className="flex gap-2 overflow-x-auto pb-3 text-[10px] font-bold">
+                {[["bg", "Remove BG"], ["clear", "Clearer 480/720/1080"], ["crop", "My Watermark Crop"], ["upscale", "Upscale Image"], ["trim", "Trim Status"], ["compress", "Compress"], ["mute", "Mute / Audio"]].map(([id, label], i) => (
+                  <motion.button
+                    key={id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => setHubTool(id)}
+                    className={`whitespace-nowrap px-4 py-2.5 rounded-full border ${hubTool === id ? "bg-[#00ff88] text-black border-[#00ff88]" : "bg-zinc-900 border-white/10"}`}
+                  >
+                    {label}
+                  </motion.button>
+                ))}
               </div>
-            </div>
-          </section>
-          <section id="drops" className="py-16 px-6 max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
-            {[{t:"THE 4AM CONTRACT", d:"You signed it in silence."},{t:"COMFORT = SLOW DEATH", d:"Your bed is warm. Your dreams are cold."},{t:"NOBODY IS COMING", d:"The rescue was always YOU."}].map(x=>(
-              <div key={x.t} className="border border-white/10 p-6 bg-zinc-900/40"><h3 className="font-black text-xl mb-2">{x.t}</h3><p className="text-xs opacity-60 mb-4">{x.d}</p><a href="https://www.tiktok.com/@nwp.motivation" target="_blank" className="text-[10px] border-b border-white/20 pb-1">WATCH DROP →</a></div>
-            ))}
-          </section>
-          <VideoSearch /><Pricing/>
-          <footer className="p-10 text-center text-[10px] opacity-30 tracking-[0.3em]">NO WASTED POTENTIAL © 2026 - LAGOS</footer>
-        </>
-      ) : (
-        <div className="pt-20 px-3 pb-10 max-w-5xl mx-auto">
-          <div className="text-center mb-6"><h2 className="text-4xl font-black">THE GRIND HUB</h2><p className="text-[11px] tracking-[0.3em] opacity-50 mt-1">ALL 7 ACTIVITIES ON NOWASTEDPOTENTIAL</p></div>
-          <div className="flex gap-2 overflow-x-auto pb-3 text-[10px] font-bold">
-            {[["bg","Remove BG"],["clear","Clearer 480/720/1080"],["crop","My Watermark Crop"],["upscale","Upscale Image"],["trim","Trim Status"],["compress","Compress"],["mute","Mute / Audio"]].map(([id,label])=>(
-              <button key={id} onClick={()=>setHubTool(id)} className={`whitespace-nowrap px-4 py-2.5 rounded-full border ${hubTool===id?"bg-[#00ff88] text-black border-[#00ff88]":"bg-zinc-900 border-white/10"}`}>{label}</button>
-            ))}
-          </div>
-          <div className="bg-zinc-900 rounded-2xl p-5 border border-white/10 min-h-[350px]">
-            {hubTool==="clear" && <ToolClear />}
-            {hubTool!=="clear" && <ToolSimple title={hubTool} />}
-          </div>
-          <button onClick={()=>setView("home")} className="w-full mt-6 py-3 border border-white/10 rounded-full text-[11px] tracking-widest">← BACK TO HOME</button>
-        </div>
-      )}
-    </div>
+              <div className="bg-zinc-900 rounded-2xl p-5 border border-white/10 min-h-[350px]">
+                <motion.div key={hubTool} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  {hubTool === "clear" && <ToolClear />}
+                  {hubTool !== "clear" && <ToolSimple title={hubTool} />}
+                </motion.div>
+              </div>
+              <button onClick={() => setView("home")} className="w-full mt-6 py-3 border border-white/10 rounded-full text-[11px] tracking-widest hover:bg-white/5 transition-colors">← BACK TO HOME</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </MotionConfig>
   );
 }
 
