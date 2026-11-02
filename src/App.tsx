@@ -206,43 +206,87 @@ export default function App() {
 
 function ToolClear(){
   const [file, setFile] = useState<File|null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string|null>(null);
   const [quality, setQuality] = useState("720");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [log, setLog] = useState("");
   const [outUrl, setOutUrl] = useState<string|null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const handleFile = (e:any)=>{ const f=e.target.files?.[0]; if(!f) return; setFile(f); setOutUrl(null); if(videoRef.current) videoRef.current.src = URL.createObjectURL(f); }
+  const ffmpegRef = useRef<any>(null);
+
+  const handleFile = (e:any)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    if(previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(f);
+    setPreviewUrl(URL.createObjectURL(f));
+    setOutUrl(null);
+    setProgress(0);
+    setLog(`Selected: ${(f.size/1024/1024).toFixed(1)}MB`);
+  };
+
+  const loadFFmpeg = async()=>{
+    if(ffmpegRef.current) return ffmpegRef.current;
+    const { FFmpeg } = await import('@ffmpeg/ffmpeg');
+    const { toBlobURL } = await import('@ffmpeg/util');
+    const ffmpeg = new FFmpeg();
+    ffmpeg.on('log', ({message}:any)=> setLog(message));
+    ffmpeg.on('progress', ({progress}:any)=> setProgress(Math.min(100, Math.max(0, Math.round(progress*100)))));
+    // Vite needs the ESM build of the core (not UMD)
+    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+    });
+    ffmpegRef.current = ffmpeg;
+    return ffmpeg;
+  };
+
   const process = async()=>{
     if(!file) { alert("Choose a video first"); return; }
-    setLoading(true); setLog("Loading ffmpeg... ~15sec first time"); setOutUrl(null);
+    setLoading(true); setProgress(0); setOutUrl(null);
+    setLog("Loading video engine... ~15sec first time");
     try{
-      const { FFmpeg } = await import('@ffmpeg/ffmpeg');
-      const { fetchFile, toBlobURL } = await import('@ffmpeg/util');
-      const ffmpeg = new FFmpeg();
-      ffmpeg.on('log', ({message})=> setLog(message));
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      await ffmpeg.load({ coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'), wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm') });
+      const { fetchFile } = await import('@ffmpeg/util');
+      const ffmpeg = await loadFFmpeg();
       await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-      const h = quality==="480"?"480": quality==="720"?"720":"1080";
+      const h = quality;
       const vf = `scale=-2:${h}:flags=lanczos,unsharp=5:5:1.0:5:5:0.0`;
       setLog(`Processing ${h}p with sharp filter...`);
-      await ffmpeg.exec(['-i','input.mp4','-vf',vf,'-c:a','copy','-preset','ultrafast','output.mp4']);
+      const code = await ffmpeg.exec([
+        '-i','input.mp4',
+        '-vf',vf,
+        '-c:v','libx264','-pix_fmt','yuv420p','-preset','ultrafast','-crf','23',
+        '-c:a','aac','-b:a','128k',
+        '-movflags','+faststart',
+        'output.mp4'
+      ]);
+      if(code !== 0) throw new Error("Video processing failed (code "+code+"). Try a shorter clip.");
       const data = await ffmpeg.readFile('output.mp4') as any;
-      const blob = new Blob([data.buffer], {type:'video/mp4'});
+      const blob = new Blob([data], {type:'video/mp4'});
       setOutUrl(URL.createObjectURL(blob));
+      setProgress(100);
       setLog(`Done! ${h}p clear video ready`);
-    }catch(err:any){ console.error(err); setLog("Error: "+err.message+" - Try smaller video <50MB"); }
+      try{ await ffmpeg.deleteFile('input.mp4'); await ffmpeg.deleteFile('output.mp4'); }catch{}
+    }catch(err:any){
+      console.error(err);
+      ffmpegRef.current = null; // force a fresh load on retry
+      const msg = err?.message || (typeof err==="string" ? err : "") || "Engine failed to start";
+      setLog("Error: "+msg+" — Try a shorter clip (under 30 seconds) or a smaller file.");
+    }
     setLoading(false);
-  }
+  };
+
   return (
     <div>
       <p className="font-black">2. Make Video Clearer — 480 / 720 / 1080p</p>
       <p className="text-[11px] opacity-50 mt-1">File never leaves your phone.</p>
       <select value={quality} onChange={e=>setQuality(e.target.value)} className="w-full mt-3 bg-black p-3 rounded border border-white/10 text-xs"><option value="480">480p — Small + Sharp</option><option value="720">720p — TikTok Sharp</option><option value="1080">1080p — HD Clear</option></select>
       <input type="file" accept="video/*" onChange={handleFile} className="w-full mt-3 bg-black p-3 rounded border border-white/10 text-xs" />
-      {file && <video ref={videoRef} controls className="w-full mt-3 rounded max-h-48 bg-black" />}
-      <button onClick={process} disabled={loading||!file} className="w-full mt-4 bg-[#00ff88] text-black font-black py-4 rounded-full text-xs disabled:opacity-30">{loading?"PROCESSING... KEEP APP OPEN":"UPGRADE TO CLEAR & EXPORT MP4"}</button>
-      {log && <p className="text-[10px] mt-3 opacity-60 font-mono bg-black p-2 rounded">{log}</p>}
+      {previewUrl && <video src={previewUrl} controls playsInline className="w-full mt-3 rounded max-h-48 bg-black" />}
+      <button onClick={process} disabled={loading||!file} className="w-full mt-4 bg-[#00ff88] text-black font-black py-4 rounded-full text-xs disabled:opacity-30">{loading?`PROCESSING... ${progress}% KEEP APP OPEN`:"UPGRADE TO CLEAR & EXPORT MP4"}</button>
+      {loading && <div className="w-full h-1 mt-3 bg-white/10 rounded overflow-hidden"><div className="h-full bg-[#00ff88] transition-all" style={{width:`${progress}%`}} /></div>}
+      {log && <p className="text-[10px] mt-3 opacity-60 font-mono bg-black p-2 rounded break-words">{log}</p>}
       {outUrl && <a href={outUrl} download={`nwp-clear-${quality}p.mp4`} className="block w-full mt-3 bg-white text-black font-black py-4 rounded-full text-xs text-center">⬇ DOWNLOAD CLEAR MP4</a>}
     </div>
   )
