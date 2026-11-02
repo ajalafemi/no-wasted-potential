@@ -32,3 +32,26 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #404040;
 }
+.site-footer {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  color: #8a8a8a;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.site-footer strong {
+  color: #fff;
+  font-weight: 500;
+  transition: text-shadow 0.3s;
+}
+.site-footer strong:hover {
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+.footer-line {
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin: 0 auto 1.2rem;
+  background: #555;
+}
